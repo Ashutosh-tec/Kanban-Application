@@ -1,0 +1,45 @@
+
+/* .container {
+
+width: max-content;
+display: grid; 
+
+grid-template-columns:repeat(4, 1fr); 
+row-gap:0.1px; 
+column-gap:0.1px;
+} */
+/* .card{
+    border:3px solid black;
+    flex: left;
+    background-color: rgb(29 31 76);
+    color: white;
+    border-radius: 14px;
+    margin: 22px;
+    width: calc( 100% / 5 - 10px);
+} */
+
+/* style for list card drop down button */
+.dropdown {
+display: inline-block;
+position: relative;
+}
+.dropdown-content {
+display: none;
+position: absolute;
+width: 100%;
+overflow: auto;
+box-shadow: 0px 10px 10px 0px rgba(0,0,0,0.4);
+}
+.dropdown:hover .dropdown-content {
+display: block;
+}
+.dropdown-content a {
+display: block;
+color: #000000;
+padding: 0.02px;
+text-decoration: none;
+}
+.dropdown-content a:hover {
+color: #FFFFFF;
+background-color: #00A4BD;
+}

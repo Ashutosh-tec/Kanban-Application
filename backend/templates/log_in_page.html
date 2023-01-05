@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/log_in.css') }}">
+  <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <h3>Welcome to The Kanban</h3>
+    <hr />
+</head>
+<body>
+  <div align = 'center' style="color: red;">
+    {% for message in get_flashed_messages() %}
+  <h2>{{ message }}</h2>
+  {% endfor %}
+</div>
+  <h3>LOG IN PAGE</h3>
+    <form action="/log_in" method="post">
+  
+
+  <div class="container">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="uname" required>
+    <br>
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" required>
+    <br>
+    
+  </div>
+  
+  <div>
+    <button type="submit" value="submit" style="font-size: 28px;" href = log_in_page.html>Login</button>
+   
+    
+    
+</div>
+  <div class="container" style="background-color:#f1f1f1; font-size: 20px; ">
+    
+    <span class="psw"> <b><a href="/" style="size: 10px;">Create an account</a></span></b>
+  </div>
+    </form>
+</body>
+</html>
