@@ -3,6 +3,8 @@ from models import db, User as User, List as List, Task as Task
 from flask_security import auth_required, current_user, hash_password
 from security import user_datastore, sec
 import datetime
+from flask import send_file
+
 
 api = Api(prefix="/api")
 
@@ -91,6 +93,8 @@ class Lists(Resource):
     def post(self): #add list
         args = list_args.parse_args()
         lists = List(list_name = args['list_name'], list_description = args['list_description'], user_id = args['user_id'])
+        if lists.list_description == "":
+            lists.list_description = None 
         db.session.add(lists)
         db.session.commit()
         return lists, 201
@@ -115,8 +119,10 @@ class Lists(Resource):
         list = List.query.filter_by(list_id = id).first()
         if list:
             list.list_name = args["list_name"]
-            if args["list_description"]:
+            if args["list_description"] != list.list_description:
                 list.list_description = args["list_description"]
+                if args["list_description"] == "":
+                    list.list_description = None
             db.session.commit()
             return "List successsfully updated", 200
         else:
@@ -164,6 +170,10 @@ class Tasks(Resource):
     def post(self): #add todo
         args = task_args.parse_args()
         tasks = Task(task_title = args['task_title'], task_content = args['task_content'], task_deadline = args['task_deadline'], task_created_time = args['task_created_time'], task_completed_time = args['task_completed_time'], task_status = args['task_status'], list_id = args['list_id'])
+        if tasks.task_content == "":
+            tasks.task_content = None
+        if tasks.task_completed_time == "":
+            tasks.task_completed_time = None
         db.session.add(tasks)
         db.session.commit()
         return tasks, 201
@@ -195,9 +205,53 @@ class Tasks(Resource):
                 if args.task_status == 'Completed':
                     task.task_completed_time = date_object
                 task.task_status = args.task_status
+            if task.task_content == "":
+                task.task_content = None
             db.session.commit()
             return "Task successsfully updated", 200
         else:
             abort(404, message = "Task doesn't exist")
 
 api.add_resource(Tasks, "/user/lists/task", "/user/lists/tasks/<int:id>")
+
+
+class export_lst(Resource):
+    # @auth_required('token')
+    def get(self, lst_id):
+        try:
+            lst = List.query.filter_by(list_id=lst_id).first()
+            file = open(f"./Export_files/list_{lst_id}.csv", "w")
+            file.write(f"{lst.list_id}, {lst.list_name}, {lst.list_description}\n\n")
+            tsk = Task.query.filter_by(list_id=lst_id).all()
+            for tk in tsk:
+                file.write(f"{tk.task_id}, {tk.task_title}, {tk.task_content}, {tk.task_deadline}, {tk.task_created_time}, {tk.task_completed_time}, {tk.task_status}\n")
+            file.close()
+            return send_file(f"./Export_files/list_{lst_id}.csv")#, attachment_filename='doc.html')
+        except Exception as e:
+            return str(e)
+api.add_resource(export_lst, "/download/list/<int:lst_id>")
+
+
+class export_tsk(Resource):
+    # @auth_required('token')
+    def get(self, tsk_id):
+        try:
+            tk = Task.query.filter_by(task_id=tsk_id).first()
+            file = open(f"./Export_files/task_{tsk_id}.csv", "w")
+            file.write(f"{tk.task_id}, {tk.task_title}, {tk.task_content}, {tk.task_deadline}, {tk.task_created_time}, {tk.task_completed_time}, {tk.task_status}\n")
+            file.close()
+            return send_file(f"./Export_files/task_{tsk_id}.csv")#, attachment_filename='doc.html')
+        except Exception as e:
+            return str(e)
+api.add_resource(export_tsk, "/download/task/<int:tsk_id>")
+
+
+
+class summary(Resource):
+    def get(self,img_id,user_id):
+        # will work simply by <img src="http://127.0.0.1:5000/api/summary_images/1/1"/>
+        if img_id == 1:
+            return send_file("./static/summaryTask.png")
+        elif img_id == 2:
+            return send_file("./static/sign-add-icon.jpeg")
+api.add_resource(summary, "/summary_images/<int:img_id>/<int:user_id>")

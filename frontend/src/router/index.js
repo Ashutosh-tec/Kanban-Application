@@ -1,5 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+
+
+// import store from './../store'
+
+Vue.use(VueRouter)
 
 const routes = [
   {
@@ -18,7 +24,7 @@ const routes = [
   {
     path: '/edit_list/:id',
     name: 'edit_list',
-    component: () => import('../views/EditList.vue')
+    component: () => import(/**/'../views/EditList.vue')
   },
   {
     path: '/add_list',
@@ -37,9 +43,15 @@ const routes = [
   },
 ]
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
   routes
 })
+
+// router.beforeEach(async (to, from, next) => {
+//   await store.restored;
+//   next();
+// });
 
 export default router

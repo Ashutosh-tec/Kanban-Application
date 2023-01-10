@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{user}}</title>
+    <style>
+        #task {
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 35%;
+        }
+
+        #task td, #task th {
+        border: 1px solid #ddd;
+        padding: 5px;
+        }
+
+        #task tr:nth-child(even){background-color: #f2f2f2;}
+
+        #task tr:hover {background-color: #ddd;}
+
+        #task th {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        text-align: left;
+        background-color: #04AA6D;
+        color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="center" text-align: center;>
+        <h1>Hello {{user}},</h1>
+        <h2>This is the monthly report on your activity of Kanban Application.</h2>
+        {% if completed_task > 0 %}
+            <h2>You have completed {{completed_task}} tasks this month. Congratulations on your progress.</h2>
+        {% else %}
+            <h3><b>There is no progress in this month. Please add and complete tasks to be at the top.</b></h3>
+        {% endif %}
+        <br/>
+        <p><h3>Pending task : {{pending_task_len}}</h3></p>
+        <br/>
+        <br/>
+        {% if pending_task_len > 0 %}
+        <h2>Detail of Pending Tasks </h2>
+        <table id="task">
+            <tr>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Deadline</th>
+                <th>Creation Time</th>
+            </tr>
+            {% for tsk in pending_task %}
+            <tr>
+                <td>{{tsk.task_title}}</td>
+                <td>{{tsk.task_content}}</td>
+                <td>{{tsk.task_deadline}}</td>
+                <td>{{tsk.task_created_time}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        <br/>
+        <br/>
+
+        {% if dead_task_len == 0 %}
+            <h3>There is no task crossed deadline. Keep it up.</h3>
+        {% else %}
+            <h3>Several tasks crossed their deadlines and remain pending this month.</h3>
+            <table id="task">
+                <tr>
+                    <th>Title</th>
+                    <th>Content</th>
+                    <th>Deadline</th>
+                    <th>Creation Time</th>
+                </tr>
+                {% for tsk in dead_task %}
+                <tr>
+                    <td>{{tsk.task_title}}</td>
+                    <td>{{tsk.task_content}}</td>
+                    <td>{{tsk.task_deadline}}</td>
+                    <td>{{tsk.task_created_time}}</td>
+                </tr>
+                {% endfor %}
+            </table>    
+        
+        {% endif %}
+        
+
+        <h3><u>This is a summary of your activity this month.</u></h>
+            <br/>
+            
+            <br/>
+        <img src="{{image_name}}" alt="Image is not availale here. Please check further attatchments in email. ">
+        <br/>
+        <h5>Brown bar shows the tasks you have created and green bar shows the tasks you have completed this month.</h5>
+        <h3>Thank You,</h3>
+        
+    </div>
+</body>
+</html>

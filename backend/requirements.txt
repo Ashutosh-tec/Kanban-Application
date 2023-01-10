@@ -3,3 +3,8 @@ flask_sqlalchemy
 flask_restful
 Flask-CORS
 flask-security-too
+celery[redis]
+httplib2
+jinja2
+matplotlib
+numpy

@@ -64,7 +64,7 @@ export default {
         task_created_time: "",
         task_completed_time: "",
         task_status: "Pending",
-        list_id: this.$route.params.id
+        list_id: this.$route.params.id,
       },
     };
   },
@@ -77,11 +77,11 @@ export default {
 
       let day = date.getDate();
       if (day < 10) {
-          day = '0' + day;
+        day = "0" + day;
       }
       let month = date.getMonth() + 1;
       if (month < 10) {
-        month = '0' + month;
+        month = "0" + month;
       }
       let year = date.getFullYear();
 
@@ -90,27 +90,28 @@ export default {
     },
     async addTask() {
       this.formData.task_created_time = this.current_date();
-      console.log(JSON.stringify(this.formData))
+      console.log(JSON.stringify(this.formData));
       if (this.formData.task_title != "") {
         this.formData.task_created_time = this.current_date();
         // console.log(this.formData);
-            const res = await fetch("http://127.0.0.1:5000/api/user/lists/task", 
-            {
-              method: "post",
-              headers: {
-                "Content-Type": "application/json",
-                "Authentication-Token": localStorage.getItem("auth-token"),
-              },
-              body: JSON.stringify(this.formData),
-            });
-            if (res.ok) {
-              this.$router.push("/");
-            }
-          } else {
-            alert("List name is essential.");
-            }
+        if (this.formData.task_status == "Completed") {
+          this.formData.task_completed_time = this.current_date();
         }
-    
+        const res = await fetch("http://127.0.0.1:5000/api/user/lists/task", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+            "Authentication-Token": localStorage.getItem("auth-token"),
+          },
+          body: JSON.stringify(this.formData),
+        });
+        if (res.ok) {
+          this.$router.push("/");
+        }
+      } else {
+        alert("List name is essential.");
+      }
+    },
   },
 };
 </script>
