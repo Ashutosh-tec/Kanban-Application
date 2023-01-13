@@ -1,40 +1,58 @@
 <template>
   <div class="root">
     <h3>LOG IN PAGE</h3>
-    <form action="">
-      <div class="container">
-        <label for="uname"><b>Email</b></label>
-        <input
-          type="text"
-          placeholder="Enter Email"
-          name="email"
-          v-model="formData.email"
-          required
-        />
-        <br />
-        <label for="psw"><b>Password </b> </label>
-        <input
-          type="password"
-          placeholder="Enter Password"
-          name="psw"
-          v-model="formData.password"
-          required
-        />
-        <br />
-      </div>
+    
 
-      <div>
-        <!-- <button type="submit" value="submit" style="font-size: 28px;" href=log_in_page.html>Login</button> -->
-        <button @click.prevent="loginMethod" style="font-size: 28px">
-          Login
-        </button>
-      </div>
-      <div class="container" style="background-color: #f1f1f1; font-size: 20px">
-        <span class="others">
-          <a href="/" style="size: 10px">Create an account</a>
-        </span>
-      </div>
-    </form>
+
+
+
+    <b-form @submit="loginMethod">
+      <b-form-group
+        id="input-group-1"
+        label="Email address:"
+        label-for="input-1"
+        description="We'll never share your email with anyone else."
+      >
+        <b-form-input
+          id="input-1"
+          v-model="formData.email"
+          type="email"
+          placeholder="Enter email"
+          required
+          style="width:70%; margin:1.2em"
+        ></b-form-input>
+      </b-form-group>
+
+      <b-form-group id="input-group-2" label="Your Password:" label-for="input-1">
+        
+        <b-form-input
+          type="password"
+          id="input-1"
+          v-model="formData.password"
+          style="width:70%"
+          required
+        ></b-form-input>
+        
+        <b-form-text id="password-help-block">
+          Your password must be 8-20 characters long,
+        </b-form-text>
+      </b-form-group>
+
+      
+
+      <b-button type="submit" variant="primary">Submit</b-button>
+
+    </b-form>
+    <div class="container" style="background-color: #f1f1f1; font-size: 20px">
+      <span class="others">
+        <a href="/create_account" style="size: 10px">Create an account</a>
+      </span>
+    </div>
+
+
+
+
+
   </div>
 </template>
 
@@ -56,7 +74,9 @@ export default {
     //   let expires = "expires="+ d.toUTCString();
     //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     // },
-    async loginMethod() {
+    async loginMethod(event) {
+      event.preventDefault()
+      try{
       const res = await fetch(
         "http://127.0.0.1:5000/login?include_auth_token",
         {
@@ -92,8 +112,13 @@ export default {
         this.$router.push("/");
         // console.log(data)
       } else {
-        console.log("something went wrong");
+        alert("Your Email or Password is wrong. Please check once again.");
       }
+      } catch(e){
+        console.log(e)
+      }
+    
+    
     },
   },
 };

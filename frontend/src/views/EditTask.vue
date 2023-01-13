@@ -30,6 +30,18 @@
           required
         />
         <br />
+
+        <b-form-select
+          v-model="selected"
+          :options="options"
+          size="sm"
+          class="mt-3"
+        ></b-form-select>
+        <div class="mt-3">
+          Selected: <strong>{{ selected }}</strong>
+        </div>
+
+        <br />
         <label for="task_completion"><b>Task Status</b></label>
         <input
           type="radio"
@@ -56,79 +68,111 @@
 
 <script>
 import NavBar from "@/components/NavBar.vue";
+var option = [];
 export default {
   name: "Add_List",
   data() {
     return {
       formData: {
-          task_title: "",
-          task_content : "",
-          task_deadline: "",
-          task_status: "Pending"
-      }
-  //     .find(
-  //     (ele) => ele.task_id == this.$route.params.id2
-  //   ),
+        task_title: "",
+        task_content: "",
+        task_deadline: "",
+        task_status: "Pending",
+        list_id: "",
+      },
+      //     .find(
+      //     (ele) => ele.task_id == this.$route.params.id2
+      //   ),
+      selected: null, //JSON.parse(sessionStorage.getItem('lists')).find((lst)=>lst.list_id==formData.list_id).list_name,
+      options: option,
     };
   },
-
 
   components: {
     NavBar,
   },
   methods: {
-    async getTask(){
-      try{
-        const res = await fetch(`http://127.0.0.1:5000/api/user/lists/tasks/${this.$route.params.id1}`,{
-          headers: {
-            'Content-Type': 'application/json',
-            'Authentication-Token': localStorage.getItem('auth-token'),
+    async getTask() {
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:5000/api/user/lists/tasks/${this.$route.params.id1}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authentication-Token": localStorage.getItem("auth-token"),
+            },
           }
-        })
-        if(res.ok){
-          const data = await res.json()
-          console.log(data)
+        );
+        if (res.ok) {
+          const data = await res.json();
+          // console.log(data);
           this.formData = data.find(
-            (ele) => ele.task_id == this.$route.params.id2)
+            (ele) => ele.task_id == this.$route.params.id2
+          );
+          console.log(JSON.parse(sessionStorage.getItem("lists")).find((lst) => lst.list_id == this.formData.list_id));
+          this.options.push({ value: null, text: JSON.parse(sessionStorage.getItem("lists")).find((lst) => lst.list_id == this.formData.list_id).list_name, disabled: true })
         }
-      }catch(e){
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
-      
     },
     async editTask() {
-      if (this.formData.list_name != "") {
-        try{
-          // console.log(JSON.stringify(this.formData))
-          const res = await fetch(
-            `http://127.0.0.1:5000/api/user/lists/tasks/${this.$route.params.id2}`,
-            {
-              method: "put",
-              headers: {
-                "Content-Type": "application/json",
-                "Authentication-Token": localStorage.getItem("auth-token"),
-              },
-              body: JSON.stringify(this.formData),
-            }
-          );
-          if (res.ok){
-              this.$router.push("/");
+      if (this.formData.task_title != "" && this.formData.task_deadline != "") {
+        if (
+          this.formData.task_content.length <= 90 ||
+          this.formData.task_content == ""
+        ) {
+          if (this.selected != null){
+            this.formData.list_id = parseInt(this.selected);
           }
-        } catch(e){
-          console.log(e)
+          try {
+            // console.log(JSON.stringify(this.formData))
+            const res = await fetch(
+              `http://127.0.0.1:5000/api/user/lists/tasks/${this.$route.params.id2}`,
+              {
+                method: "put",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authentication-Token": localStorage.getItem("auth-token"),
+                },
+                body: JSON.stringify(this.formData),
+              }
+            );
+            if (res.ok) {
+              this.$router.push("/");
+            }
+          } catch (e) {
+            if (localStorage.getItem("user_id") == null) {
+              if (
+                confirm(
+                  "Looks like your account is not detected. Please log in."
+                )
+              ) {
+                console.log(e);
+                this.$router.push("/login");
+              }
+            }
+            console.log(e);
+          }
+        } else {
+          alert("Content should have 10-90 characters.");
         }
-      }
-      else{
-        alert("List name is essential.")
+      } else {
+        alert("Task title and deadline are essential.");
       }
     },
-
   },
-  created(){
+  mounted() {
+    if (this.options.length === 0) {
+      JSON.parse(sessionStorage.getItem("lists")).forEach(function (value) {
+        option.push({ value: `${value.list_id}`, text: `${value.list_name}` });
+        // console.log(value);
+      });
+    }
+  },
+  created() {
     this.getTask();
   },
-
-
 };
 </script>
 

@@ -35,8 +35,9 @@ class Users(Resource):
             abort(404, message="Invalid Email address")
 
     # @marshal_with(user_output_fields)
-    def post(self): #add list
+    def post(self): 
         args = user_args.parse_args()
+        print(args)
         if user_datastore.find_user(email=args['email']):
             abort(409, message = "Email already exist, please login.")
 
@@ -55,7 +56,7 @@ class Users(Resource):
             abort(404, message = "User doesn't exist")
 
 
-api.add_resource(Users, "/user/", "/user/<string:user_email>", "/user/<int:user_id>")
+api.add_resource(Users, "/adduser", "/user/<string:user_email>", "/user/<int:user_id>")
 
 
 #------------------LIST---------------------
@@ -205,6 +206,8 @@ class Tasks(Resource):
                 if args.task_status == 'Completed':
                     task.task_completed_time = date_object
                 task.task_status = args.task_status
+            if args.list_id != "":
+                task.list_id = args.list_id
             if task.task_content == "":
                 task.task_content = None
             db.session.commit()
@@ -249,9 +252,84 @@ api.add_resource(export_tsk, "/download/task/<int:tsk_id>")
 
 class summary(Resource):
     def get(self,img_id,user_id):
+        from matplotlib import pyplot as plt
+        import numpy as np
         # will work simply by <img src="http://127.0.0.1:5000/api/summary_images/1/1"/>
         if img_id == 1:
-            return send_file("./static/summaryTask.png")
+            plt.clf()
+            var = List.query.filter_by(user_id=user_id)
+            task = []
+            for lt in var:
+                task += Task.query.filter_by(list_id=lt.list_id)
+            var = {"Completed": [], "Pending": [], "passdead": []} #storing info of task in this month
+            for tsk in task:
+                # if tsk.task_last_update == date_object[5:7]:
+                if tsk.task_status == "Completed":
+                    var['Completed'].append(tsk) 
+                elif tsk.task_deadline < date_object:
+                        var['passdead'].append(tsk)
+                elif tsk.task_status != "Completed":
+                    var['Pending'].append(tsk)
+                           
+            task_statuses=["Completed","Pending","Crossed Deadline"]
+            print(var)
+            task_no=[len(var["Completed"]),len(var["Pending"]),len(var["passdead"])]
+            plt.figure(figsize=(10,12))
+            plt.pie(task_no,labels=task_statuses,startangle=90,shadow=True,colors=["green","orange","red"],explode=[0.01,0.01,0.05],autopct="%2.1f%%", textprops={'fontsize': 12})
+            plt.legend(title="Status")
+            plt.show()
+            plt.savefig("static/summaryPieChart.png", transparent=True)
+            
+            
+            return send_file("./static/summaryPieChart.png")
         elif img_id == 2:
-            return send_file("./static/sign-add-icon.jpeg")
+            var = List.query.filter_by(user_id=user_id)
+            task = []
+            for lt in var:
+                task += Task.query.filter_by(list_id=lt.list_id)
+            var = {"Completed": [], "Created": [], "passdead": []} #storing info of task in this month
+            for tsk in task:
+                # if tsk.task_last_update == date_object[5:7]:
+                if str(tsk.task_created_time)[5:7] == date_object[5:7]:
+                    var['Created'].append(tsk)
+                if tsk.task_status == "Completed":
+                    if str(tsk.task_completed_time)[5:7] == date_object[5:7]:
+                        var['Completed'].append(tsk)
+                else:
+                    if tsk.task_deadline < date_object:
+                        var['passdead'].append(tsk)
+            
+            plt.clf() #used to clear the current figure
+            var['Completed'].sort(key = lambda x : x.task_completed_time)
+            
+            complete_taskNo_dict = {}
+            create_taskNo_dict = {}
+            for tsk in var['Completed']:
+                complete_taskNo_dict[tsk.task_completed_time] = 0
+                create_taskNo_dict[tsk.task_created_time] = 0
+            for tsk in var['Created']:
+                complete_taskNo_dict[tsk.task_created_time] = 0
+                create_taskNo_dict[tsk.task_created_time] = 0
+            for tsk in var['Completed']:
+                complete_taskNo_dict[tsk.task_completed_time] += 1
+            for tsk in var['Created']:
+                create_taskNo_dict[tsk.task_created_time] += 1
+            print(complete_taskNo_dict)
+            w = 0.4
+            bar1 = np.arange(len(complete_taskNo_dict.keys()))
+            bar2 = [i+w for i in bar1]
+            plt.bar(bar1, list(create_taskNo_dict.values()),w, label='Created', color = ['brown'])
+            plt.bar(bar2, list(complete_taskNo_dict.values()),w, label='Completed', color = ['green'])
+            plt.xlabel('Date')
+            plt.ylabel('No. of Tasks')
+            plt.title('Date (Activity Time) Vs No. of Tasks')
+            dates = list(complete_taskNo_dict.keys())
+            dates.sort()
+            plt.xticks(bar1+w/2, dates)
+            handles, labels = plt.gca().get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            plt.legend(by_label.values(), by_label.keys())
+            plt.savefig("static/summaryTask" +".png")
+            return send_file("./static/summaryTask.png")
+
 api.add_resource(summary, "/summary_images/<int:img_id>/<int:user_id>")

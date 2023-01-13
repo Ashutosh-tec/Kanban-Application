@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import router from '../router'
 // import VuexPersistence from 'vuex-persist';
 // import localForage from 'localforage';
 // const vuexLocal = new VuexPersistence({
@@ -27,6 +28,11 @@ export default new Vuex.Store({
         state.lists = data;
         // console.log(data)
         // console.log(typeof(data))
+      },
+      deleteList(state, id){
+        var objWithIdIndex = state.lists.findIndex((obj) => obj.id === id);
+        state.lists.splice(objWithIdIndex, 1);
+        console.log(JSON.stringify(state.lists))
       },
       addTask(state, { list_id, data }) {
         state.tasks[`${list_id}`] = data;
@@ -57,13 +63,21 @@ export default new Vuex.Store({
             //   context.commit('addLists', data)
             // }
             context.commit("addLists", data);
-          } else {
+          }else if(res.status_code != 200){
+            
+            console.log("wrong in credentials")
+          }
+          
+          else {
             alert(
               "Something went wrong, Please refresh the page or login again."
             );
           }
         } catch (e) {
+          if (confirm("Looks like your account is not detected. Please log in first.")){
           console.log(e);
+          router.push("/login");
+          }
         }
       },
       async fetchTasks(context, list_id) {

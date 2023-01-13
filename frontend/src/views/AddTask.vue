@@ -90,13 +90,16 @@ export default {
     },
     async addTask() {
       this.formData.task_created_time = this.current_date();
-      console.log(JSON.stringify(this.formData));
-      if (this.formData.task_title != "") {
+      // console.log(JSON.stringify(this.formData));
+      
+      try{
+      if (this.formData.task_title != "" && this.formData.task_deadline != "" && this.formData.task_content != "") {
         this.formData.task_created_time = this.current_date();
         // console.log(this.formData);
         if (this.formData.task_status == "Completed") {
           this.formData.task_completed_time = this.current_date();
         }
+
         const res = await fetch("http://127.0.0.1:5000/api/user/lists/task", {
           method: "post",
           headers: {
@@ -109,8 +112,20 @@ export default {
           this.$router.push("/");
         }
       } else {
-        alert("List name is essential.");
+        alert("Task title, content and deadline are essential.");
       }
+      }catch(e){
+        if (localStorage.getItem("user_id") == null) {
+          if (
+            confirm("Looks like your account is not detected. Please log in.")
+          ) {
+            console.log(e);
+            this.$router.push("/login");
+          }
+        }
+        console.log(e)
+      }
+    
     },
   },
 };

@@ -36,73 +36,80 @@
 import NavBar from "@/components/NavBar.vue";
 export default {
   name: "Edit_List",
-  
+
   components: {
-    NavBar
+    NavBar,
   },
   data() {
     return {
       formData: {
         list_name: "",
-        list_description: ""
+        list_description: "",
       },
-      
     };
   },
   methods: {
-      
-      async getList(){
-          try {
-          const res = await fetch(`http://127.0.0.1:5000/api/user/lists/${localStorage.getItem("user_id")}`,{
-              headers: {
-              'Content-Type': 'application/json',
-              'Authentication-Token': localStorage.getItem('auth-token'),
-              }
-          })
-          if (res.ok){
-              const data = await res.json()
-              this.formData = data.find(
-                      (ele) => ele.list_id == this.$route.params.id
-                  )
+    async getList() {
+      try {
+        const res = await fetch(
+          `http://127.0.0.1:5000/api/user/lists/${localStorage.getItem(
+            "user_id"
+          )}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authentication-Token": localStorage.getItem("auth-token"),
+            },
           }
-          
+        );
+        if (res.ok) {
+          const data = await res.json();
+          this.formData = data.find(
+            (ele) => ele.list_id == this.$route.params.id
+          );
+        }
+      } catch (e) {
+        if (localStorage.getItem("user_id") == null) {
+          if (
+            confirm("Looks like your account is not detected. Please log in.")
+          ) {
+            console.log(e);
+            this.$router.push("/login");
           }
-          catch (e) {
-              console.log(e);
-          }
-      },
+        }
+        console.log(e);
+      }
+    },
     async editList() {
       try {
-      this.formData.user_id = localStorage.getItem("user_id");
-      const res = await fetch(
-        `http://127.0.0.1:5000/api/user/lists/${this.$route.params.id}`,
-        {
-          method: "put",
-          headers: {
-            "Content-Type": "application/json",
-            "Authentication-Token": localStorage.getItem("auth-token"),
-          },
-          body: JSON.stringify(this.formData),
+        this.formData.user_id = localStorage.getItem("user_id");
+        const res = await fetch(
+          `http://127.0.0.1:5000/api/user/lists/${this.$route.params.id}`,
+          {
+            method: "put",
+            headers: {
+              "Content-Type": "application/json",
+              "Authentication-Token": localStorage.getItem("auth-token"),
+            },
+            body: JSON.stringify(this.formData),
+          }
+        );
+        if (res.ok) {
+          this.$router.push("/");
         }
-      );
-      if (res.ok) {
-        this.$router.push("/");
-      }
-
       } catch (e) {
         console.log(e);
       }
     },
   },
-  created(){
+  created() {
     this.getList();
   },
 };
-
 </script>
 
 <style>
-  /* Bordered form */
+/* Bordered form */
 form {
   border: 3px solid #f1f1f1;
 }

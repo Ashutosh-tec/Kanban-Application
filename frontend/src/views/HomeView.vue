@@ -5,7 +5,7 @@
     <!-- please use this as image showing reference -->
     <!-- <img alt="Vue logo" src="../assets/logo.png">     -->
 
-    <Home msg="Welcome " />
+    <Home msg=" Hello " />
   <!-- </div> -->
 
   <!-- <div v-else>

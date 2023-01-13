@@ -22,14 +22,14 @@ const routes = [
     component: () => import(/* webpackChunkName:"about" */ '../views/LogIn.vue')
   },
   {
+    path: '/create_account',
+    name: 'create_account',
+    component: () => import(/**/'../views/CreateAccount.vue')
+  },
+  {
     path: '/edit_list/:id',
     name: 'edit_list',
     component: () => import(/**/'../views/EditList.vue')
-  },
-  {
-    path: '/add_list',
-    name: 'add_list',
-    component: () => import('../views/AddList.vue')
   },
   {
     path: '/add_task/:id',
@@ -40,6 +40,16 @@ const routes = [
     path: '/list/:id1/edit_task/:id2',
     name: 'edit_task',
     component: () => import('../views/EditTask.vue')
+  },
+  {
+    path: '/Summary_page',
+    name: 'summay_page',
+    component: () => import(/**/'../views/summary.vue')
+  },
+  {
+    path: '/rough',
+    name: 'rough',
+    component: () => import(/**/'../views/rough.vue')
   },
 ]
 
