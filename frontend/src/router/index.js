@@ -3,7 +3,6 @@ import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
 
-// import store from './../store'
 
 Vue.use(VueRouter)
 
@@ -16,9 +15,7 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
+    
     component: () => import(/* webpackChunkName:"about" */ '../views/LogIn.vue')
   },
   {
@@ -46,11 +43,7 @@ const routes = [
     name: 'summay_page',
     component: () => import(/**/'../views/summary.vue')
   },
-  {
-    path: '/rough',
-    name: 'rough',
-    component: () => import(/**/'../views/rough.vue')
-  },
+  
 ]
 
 const router = new VueRouter({
@@ -59,9 +52,5 @@ const router = new VueRouter({
   routes
 })
 
-// router.beforeEach(async (to, from, next) => {
-//   await store.restored;
-//   next();
-// });
 
 export default router

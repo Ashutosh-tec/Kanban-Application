@@ -4,10 +4,6 @@
 </template>
 
 <script>
-
-
-
-
 </script>
 
 <style>

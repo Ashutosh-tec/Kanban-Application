@@ -7,6 +7,17 @@ npm install
 
 ```
 
+
+### Add Bootstraps
+```
+npm install bootstrap bootstrap-vue
+```
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
+
+```
+npm install chartjs vue-chartjs
+```
 ### Compiles and hot-reloads for development
 ```
 npm run serve
@@ -16,9 +27,3 @@ npm run serve
 ```
 npm run build
 ```
-### Add Bootstraps
-```
-npm install bootstrap bootstrap-vue
-```
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

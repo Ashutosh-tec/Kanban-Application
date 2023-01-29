@@ -1,4 +1,4 @@
-# from flask import Flask
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin, RoleMixin
 
@@ -13,9 +13,9 @@ roles_users = db.Table('roles_users',
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    username = db.Column(db.String, unique=False)
-    email = db.Column(db.String, unique=True)
-    password = db.Column(db.String(2555))
+    username = db.Column(db.String(255), unique=False)
+    email = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     roles = db.relationship('Role', secondary=roles_users,
@@ -39,7 +39,6 @@ class List(db.Model):
     user_id = db.Column(db.String,db.ForeignKey("user.id"), nullable=False)
     tasks = db.relationship("Task", backref= "list")
     
-    # list = db.relationship("Todo", backref="list")
     def __repr__(self):
         return "<List's ID is %r>" % self.list_id
 

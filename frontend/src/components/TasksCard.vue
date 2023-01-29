@@ -1,11 +1,6 @@
 <template>
   <div class="root board">
-    <!-- <h1>Your tasks are here</h1> -->
-    <!-- <div v-if="tasks.length == 0">No Tasks to show, Please add one.</div> -->
-    <!-- <div v-else> -->
-
     <div class="cards tsk" v-for="task in formData" :key="task.task_id">
-      <!-- <a>{{ task }}</a> -->
       <div
         :style="[
           task.task_status == 'Completed'
@@ -63,12 +58,9 @@
           <br />
           Status : {{ task.task_status }}
           <br />
-          <!-- </div>
-        <div class="card-footer"> -->
         </div>
       </div>
     </div>
-    <!-- </div> -->
   </div>
 </template>
 
@@ -79,26 +71,9 @@ export default {
   data() {
     return {
       formData: [],
-      // readMoreActivated: false,
-      // content:"",
     };
   },
-  // computed: {
-  //   tasks() {
-  //     // this.$store.dispatch('fetchTasks', this.list_id);
-  //     // console.log(this.$store.state.tasks[`${this.list_id}`])
 
-  //     return this.$store.state.tasks[`${this.list_id}`];
-  //   },
-  // },
-  // created: function () {
-  //   location.reload();
-  // if (!this.$store.state.tasks[`${this.list_id}`]){
-  //   location.reload()
-  // }
-  // this.getTask()
-  // this.$store.dispatch("fetchTasks", this.list_id);
-  // },
   async mounted() {
     try {
       const res = await fetch(
@@ -112,7 +87,6 @@ export default {
       );
       if (res.ok) {
         const data = await res.json();
-        // console.log(data);
         this.formData = data.filter((ele) => ele.list_id == this.list_id);
       }
     } catch (e) {
@@ -136,14 +110,8 @@ export default {
       // This arrangement can be altered based on how we want the date's format to appear.
       return `${year}-${month}-${day}`;
     },
-    // activateReadMore(id){
-    //     console.log(id)
-    //     this.content = this.formData.find((task) => task.task_id === id).task_content
-    //     console.log(this.content)
-    //     this.readMoreActivated = true;
-    // },
+
     async deleteTask(task_id) {
-      // console.log(task_id);
       try {
         if (confirm("Do you really want to delete?")) {
           const res = await fetch(
@@ -163,10 +131,8 @@ export default {
               return arr;
             }
             removeObjectWithId(this.formData, task_id);
-            // console.log(this.formData);
-            // location.reload();
-          } else{
-            alert("Something went wrong, please try after refresh your page.")
+          } else {
+            alert("Something went wrong, please try after refresh your page.");
           }
         }
       } catch (e) {
@@ -180,29 +146,6 @@ export default {
           "_blank",
           "noreferrer"
         );
-        // const res = await fetch(
-        //   `http://127.0.0.1:5000/api/download/list/${list_id}`,
-        //   {
-        //     method: "get",
-        //     headers: {
-        //       "Content-Type": "application/json",
-        //       "Authentication-Token": localStorage.getItem("auth-token"),
-        //     },
-        //   }
-        // );
-        // if (res.ok) {
-        // then do whatever
-
-        // location.reload();
-        // var url = window.URL.createObjectURL(res.blob());
-        //   var a = document.createElement('a');
-        //   a.href = url;
-        //   a.download = filename;
-        //   document.body.appendChild(a);
-        //   a.click();
-        //   a.remove();
-        // download(res.blob())
-        // }
       } catch (e) {
         console.log(e);
       }
@@ -241,22 +184,22 @@ export default {
 .tsk {
   border: 2px; /* solid #e7e7e7; */
   border-radius: 4px;
-  transition: 0.2s ease-in-out;
+  transition: 0.3s ease-in-out;
   width: 17rem;
   margin-top: 10px;
   padding: 0.5rem;
+  font-family: cursive;
 }
 .tsk:hover {
   width: 19rem;
   font-weight: bold;
   letter-spacing: 0.08rem;
   background-color: rgb(206, 251, 213);
-  transition: 0.2s ease-in-out;
+  transition: 0.1s ease-in-out;
 }
 .dropd {
   display: flex;
   justify-content: center;
   align-items: center;
-  /*Not working till now*/
 }
 </style>

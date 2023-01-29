@@ -80,10 +80,8 @@ export default {
         task_status: "Pending",
         list_id: "",
       },
-      //     .find(
-      //     (ele) => ele.task_id == this.$route.params.id2
-      //   ),
-      selected: null, //JSON.parse(sessionStorage.getItem('lists')).find((lst)=>lst.list_id==formData.list_id).list_name,
+
+      selected: null,
       options: option,
     };
   },
@@ -105,7 +103,6 @@ export default {
         );
         if (res.ok) {
           const data = await res.json();
-          // console.log(data);
           this.formData = data.find(
             (ele) => ele.task_id == this.$route.params.id2
           );
@@ -126,7 +123,6 @@ export default {
             this.formData.list_id = parseInt(this.selected);
           }
           try {
-            // console.log(JSON.stringify(this.formData))
             const res = await fetch(
               `http://127.0.0.1:5000/api/user/lists/tasks/${this.$route.params.id2}`,
               {
@@ -166,7 +162,6 @@ export default {
     if (this.options.length === 0) {
       JSON.parse(sessionStorage.getItem("lists")).forEach(function (value) {
         option.push({ value: `${value.list_id}`, text: `${value.list_name}` });
-        // console.log(value);
       });
     }
   },

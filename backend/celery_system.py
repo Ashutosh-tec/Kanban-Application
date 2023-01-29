@@ -36,29 +36,8 @@ celery = make_celery(app)
 
 
 
-
-
-
-
-# @celery.on_after_configure.connect
-# def setup_periodic_tasks(sender, **kwargs):
-#     # Calls test('hello') every 10 seconds.
-#     # sender.add_periodic_task(10.0, send_reminder.s(), name='add every 10')
-
-#     # Calls test('world') every 30 seconds
-#     # sender.add_periodic_task(30.0, test.s('world'), expires=10)
-
-#     # Executes everyday at 6:00 p.m.
-#     sender.add_periodic_task(
-#         crontab(hour=18, minute=00),
-#         send_reminder.s(),
-#     )
-
-
 @celery.task()
 def send_report():
-    # time.sleep(5)
-    # return random.random()
     user = User.query.all()
     for usr in user:
         trigger_reminder.email_sender(usr)
@@ -81,9 +60,9 @@ def send_reminder():
         print(response)
 
 
+
 @celery.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(crontab(hour=17, minute=30), send_reminder.s(), name='Daily Alert')
-    # sender.add_periodic_task(crontab(hour=3, minute=9), send_report.s(), name='Daily Alert')
-    sender.add_periodic_task(crontab(hour=23, minute=45, day_of_month=1), send_report.s(), name="Monthly Progress Reports")
+    sender.add_periodic_task(crontab(hour=3, minute=0), send_reminder.s(), name='Daily Alert')
+    sender.add_periodic_task(crontab(hour=3, minute=0, day_of_month='15'), send_report.s(), name="Monthly Progress Reports")
 

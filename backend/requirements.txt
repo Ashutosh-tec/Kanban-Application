@@ -8,3 +8,4 @@ httplib2
 jinja2
 matplotlib
 numpy
+flask-caching

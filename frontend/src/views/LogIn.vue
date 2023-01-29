@@ -1,11 +1,6 @@
 <template>
   <div class="root">
     <h3>LOG IN PAGE</h3>
-    
-
-
-
-
     <b-form @submit="loginMethod">
       <b-form-group
         id="input-group-1"
@@ -27,7 +22,7 @@
         
         <b-form-input
           type="password"
-          id="input-1"
+          id="input-2"
           v-model="formData.password"
           style="width:70%"
           required
@@ -37,9 +32,6 @@
           Your password must be 8-20 characters long,
         </b-form-text>
       </b-form-group>
-
-      
-
       <b-button type="submit" variant="primary">Submit</b-button>
 
     </b-form>
@@ -48,12 +40,7 @@
         <a href="/create_account" style="size: 10px">Create an account</a>
       </span>
     </div>
-
-
-
-
-
-  </div>
+</div>
 </template>
 
 <script>
@@ -68,12 +55,6 @@ export default {
     };
   },
   methods: {
-    // setCookie(cname, cvalue, exdays) { //This methode use to set cookie in case
-    //   const d = new Date();
-    //   d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    //   let expires = "expires="+ d.toUTCString();
-    //   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    // },
     async loginMethod(event) {
       event.preventDefault()
       try{
@@ -110,7 +91,6 @@ export default {
           localStorage.setItem("username", data.username);
         }
         this.$router.push("/");
-        // console.log(data)
       } else {
         alert("Your Email or Password is wrong. Please check once again.");
       }

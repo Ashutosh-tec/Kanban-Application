@@ -1,12 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import router from '../router'
-// import VuexPersistence from 'vuex-persist';
-// import localForage from 'localforage';
-// const vuexLocal = new VuexPersistence({
-//   storage: localForage,
-//   asyncStorage: true,
-// });
 
 Vue.use(Vuex)
 
@@ -26,8 +20,7 @@ export default new Vuex.Store({
     mutations: {
       addLists(state, data) {
         state.lists = data;
-        // console.log(data)
-        // console.log(typeof(data))
+        
       },
       deleteList(state, id){
         var objWithIdIndex = state.lists.findIndex((obj) => obj.id === id);
@@ -36,8 +29,7 @@ export default new Vuex.Store({
       },
       addTask(state, { list_id, data }) {
         state.tasks[`${list_id}`] = data;
-        // console.log(data)
-        // console.log(state.tasks[`${list_id}`])
+        
       },
     },
     actions: {
@@ -55,13 +47,8 @@ export default new Vuex.Store({
             }
           );
           if (res.ok) {
+            console.log(res)
             const data = await res.json();
-            // console.log(data)
-            // if (data.length == 0){
-            //   context.commit('addLists', [])
-            // }else{
-            //   context.commit('addLists', data)
-            // }
             context.commit("addLists", data);
           }else if(res.status_code != 200){
             
@@ -93,18 +80,16 @@ export default new Vuex.Store({
           );
           if (res.ok) {
             const data = await res.json();
-            // console.log(data)
+          
             context.commit("addTask", { list_id, data });
           } else {
-            // alert("Something went wrong, Please refresh the page or login again.")
+            alert("Something went wrong, Please refresh the page or login again.")
           }
         } catch (e) {
           console.log(e);
         }
       },
     },
-
-    // plugins: [vuexLocal.plugin],
 
   });
   

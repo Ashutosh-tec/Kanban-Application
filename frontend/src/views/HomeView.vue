@@ -1,20 +1,7 @@
 <template>
   <div class="home">
-    <!-- <div v-if="localStorage.getItem('auth-token')"> -->
     <NavBar />
-    <!-- please use this as image showing reference -->
-    <!-- <img alt="Vue logo" src="../assets/logo.png">     -->
-
     <Home msg=" Hello " />
-  <!-- </div> -->
-
-  <!-- <div v-else>
-    Please Login first.
-  </div> -->
-
-    
-
-
   </div>
 </template>
 

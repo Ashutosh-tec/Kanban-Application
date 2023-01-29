@@ -9,7 +9,6 @@ from models import db, User as User, List as List, Task as Task
 import datetime
 import matplotlib.pyplot as plt
 import numpy as np
-# from app import *
 
 env = Environment(loader=FileSystemLoader('templates'))
 date_object = str(datetime.date.today())
@@ -19,8 +18,8 @@ class trigger_reminder():
 
     def email_sender(user):
         msg = EmailMessage()
-        msg['Subject'] = 'Checking Email Sender'
-        msg['From'] = 'Monthly Report (Kanban)'
+        msg['Subject'] = 'Kanban Monthly Activity Report'
+        msg['From'] = 'Monthly Report'
         msg['To'] = str(user.email)
         msg.set_content(f"Hello {user.username},\n We hope you are doing well. Your monthly report is attatched in this mail.\n\nThanks and regards,\nKanboard Application Team")
         trigger_reminder.report_maker(user)
@@ -39,14 +38,12 @@ class trigger_reminder():
         return "Email sent"
 
     def report_maker(user):
-        # with app.app_context():
         var = List.query.filter_by(user_id=user.id)
         task = []
         for lt in var:
             task += Task.query.filter_by(list_id=lt.list_id)
         var = {"Completed": [], "Pending": [], "passdead": []}
         for tsk in task:
-            # if tsk.task_last_update == date_object[5:7]:
             if tsk.task_status == "Completed":
                 if str(tsk.task_completed_time)[5:7] == date_object[5:7]:
                     var['Completed'].append(tsk)
@@ -78,7 +75,6 @@ class trigger_reminder():
             task += Task.query.filter_by(list_id=lt.list_id)
         var = {"Completed": [], "Created": [], "passdead": []} #storing info of task in this month
         for tsk in task:
-            # if tsk.task_last_update == date_object[5:7]:
             if str(tsk.task_created_time)[5:7] == date_object[5:7]:
                 var['Created'].append(tsk)
             if tsk.task_status == "Completed":
@@ -87,44 +83,19 @@ class trigger_reminder():
             else:
                 if tsk.task_deadline < date_object:
                     var['passdead'].append(tsk)
-                # else:
-                #     var['Pending'].append(tsk)
-
-        # making graph of Task Creating Time vs Date
-        
-        # plt.clf() #used to clear the current figure
-        # var['Created'].sort(key = lambda x : x.task_created_time)
-        # create_taskNo_dict = {}
-        # for tsk in var['Created']:
-        #     create_taskNo_dict[tsk.task_created_time] = 0
-        # for tsk in var['Created']:
-        #     create_taskNo_dict[tsk.task_created_time] += 1
-        # bar = np.arange(len(create_taskNo_dict.keys()))
-        # # plt.bar(bar1, pending_no,w, label='Pending', color = ['brown'])
-        # plt.bar(bar, list(create_taskNo_dict.values()), label='Created', color = ['green'])
-        # plt.xlabel('Task Creating Time')
-        # plt.ylabel('No. of Tasks')
-        # plt.title('Task Creating Time Vs No. of Tasks')
-        # plt.xticks(bar, create_taskNo_dict.keys())
-        # handles, labels = plt.gca().get_legend_handles_labels()
-        # by_label = dict(zip(labels, handles))
-        # plt.legend(by_label.values(), by_label.keys())
-        # plt.savefig("static/summaryCreatingTask" +".png")
-        # # image_name = "/static/summary" + user_id +".png"
-
+                
 
         # making graph of Task Completing Time vs Date
         plt.clf() #used to clear the current figure
         var['Completed'].sort(key = lambda x : x.task_completed_time)
         
         complete_taskNo_dict = {}
-        create_taskNo_dict = {}
         for tsk in var['Completed']:
             complete_taskNo_dict[tsk.task_completed_time] = 0
-            create_taskNo_dict[tsk.task_created_time] = 0
         for tsk in var['Created']:
             complete_taskNo_dict[tsk.task_created_time] = 0
-            create_taskNo_dict[tsk.task_created_time] = 0
+
+        create_taskNo_dict = complete_taskNo_dict.copy()
         for tsk in var['Completed']:
             complete_taskNo_dict[tsk.task_completed_time] += 1
         for tsk in var['Created']:
@@ -176,5 +147,4 @@ class trigger_reminder():
         return user_task_dict
 
 
-# usr = User.query.filter_by(id = 1).first()
-# trigger_reminder.report_maker(usr)
+

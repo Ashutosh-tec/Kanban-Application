@@ -5,6 +5,13 @@ from security import user_datastore, sec
 import datetime
 from flask import send_file
 
+from flask import jsonify
+
+# import sys
+# # setting path
+# sys.path.append('../')
+# from app import cache
+
 
 api = Api(prefix="/api")
 
@@ -24,11 +31,11 @@ user_output_fields = {
 class Users(Resource):
     
     @marshal_with(user_output_fields)
-    @auth_required('token')
+    # @auth_required('token')
     def get(self,user_email=None):
         usr = User.query.filter_by(email=user_email).first()
-        # if id==current_user.id:
-        if usr and user_email==current_user.email:
+        
+        if usr: # and usr.email == current_user.email:
             return usr, 200
             # This returned object will have proper credential only if user autherised --> check ../backend/views/login.vue -> res2 in loginMethod
         else:
@@ -45,10 +52,22 @@ class Users(Resource):
         username=args['username'], email=args['email'], password=hash_password(args['password']))
         db.session.commit()
         return {"User Name" : args['username']}, 201
-    
+    @auth_required('token')
     def delete(self,user_id):
         usr = User.query.filter_by(id=user_id).first()
         if usr:
+
+            lst=List.query.filter_by(user_id = user_id).all()
+            for lt in lst:
+                tsk = Task.query.filter_by(list_id = lt.list_id).all()
+                for tk in tsk:
+                    db.session.delete(tk)
+                    db.session.commit()
+                db.session.delete(lt)
+                db.session.commit()
+
+
+
             db.session.delete(usr)
             db.session.commit()
             return "User successsfully deleted", 200
@@ -78,14 +97,14 @@ list_put_args.add_argument("user_id",type=int,required=True)
 class Lists(Resource):
     @marshal_with(list_output_fields)
     @auth_required('token')
+    # @cache.memoize(timeout=60)
     def get(self,id):
         lists = List.query.filter_by(user_id=id).all() # return a list 
-        # return lists, 201
         
-        if len(lists) == 0 or id != current_user.id:
-            # return lists, 201
+        if id != current_user.id:
+            
             abort(404, message = "No lists availavle or you have put some wrong credentials.")
-            # return "List is not created yet.", 404
+            
         else:
             return lists, 200
 
@@ -160,10 +179,6 @@ class Tasks(Resource):
     @auth_required('token')
     def get(self,id):
         task = Task.query.filter_by(list_id=id).all() # return a list 
-        # if len(tasks) == 0:
-        #     abort(404, message = "Task is not created for this list.")
-            
-        # else:
         return task, 200
     
     @marshal_with(task_output_fields)
@@ -221,6 +236,7 @@ api.add_resource(Tasks, "/user/lists/task", "/user/lists/tasks/<int:id>")
 class export_lst(Resource):
     # @auth_required('token')
     def get(self, lst_id):
+
         try:
             lst = List.query.filter_by(list_id=lst_id).first()
             file = open(f"./Export_files/list_{lst_id}.csv", "w")
@@ -251,19 +267,20 @@ api.add_resource(export_tsk, "/download/task/<int:tsk_id>")
 
 
 class summary(Resource):
+    @auth_required('token')
     def get(self,img_id,user_id):
         from matplotlib import pyplot as plt
         import numpy as np
         # will work simply by <img src="http://127.0.0.1:5000/api/summary_images/1/1"/>
+        var = List.query.filter_by(user_id=user_id)
+        task = []
+        for lt in var:
+            task += Task.query.filter_by(list_id=lt.list_id)
         if img_id == 1:
-            plt.clf()
-            var = List.query.filter_by(user_id=user_id)
-            task = []
-            for lt in var:
-                task += Task.query.filter_by(list_id=lt.list_id)
+            
             var = {"Completed": [], "Pending": [], "passdead": []} #storing info of task in this month
             for tsk in task:
-                # if tsk.task_last_update == date_object[5:7]:
+               
                 if tsk.task_status == "Completed":
                     var['Completed'].append(tsk) 
                 elif tsk.task_deadline < date_object:
@@ -271,25 +288,20 @@ class summary(Resource):
                 elif tsk.task_status != "Completed":
                     var['Pending'].append(tsk)
                            
-            task_statuses=["Completed","Pending","Crossed Deadline"]
-            print(var)
+           
             task_no=[len(var["Completed"]),len(var["Pending"]),len(var["passdead"])]
-            plt.figure(figsize=(10,12))
-            plt.pie(task_no,labels=task_statuses,startangle=90,shadow=True,colors=["green","orange","red"],explode=[0.01,0.01,0.05],autopct="%2.1f%%", textprops={'fontsize': 12})
-            plt.legend(title="Status")
-            plt.show()
-            plt.savefig("static/summaryPieChart.png", transparent=True)
             
+            if task_no == []:
+                return "No task to show", 404
+            return jsonify(task_no)
             
-            return send_file("./static/summaryPieChart.png")
+
+
         elif img_id == 2:
-            var = List.query.filter_by(user_id=user_id)
-            task = []
-            for lt in var:
-                task += Task.query.filter_by(list_id=lt.list_id)
+            
             var = {"Completed": [], "Created": [], "passdead": []} #storing info of task in this month
             for tsk in task:
-                # if tsk.task_last_update == date_object[5:7]:
+                
                 if str(tsk.task_created_time)[5:7] == date_object[5:7]:
                     var['Created'].append(tsk)
                 if tsk.task_status == "Completed":
@@ -303,33 +315,43 @@ class summary(Resource):
             var['Completed'].sort(key = lambda x : x.task_completed_time)
             
             complete_taskNo_dict = {}
-            create_taskNo_dict = {}
             for tsk in var['Completed']:
                 complete_taskNo_dict[tsk.task_completed_time] = 0
-                create_taskNo_dict[tsk.task_created_time] = 0
             for tsk in var['Created']:
                 complete_taskNo_dict[tsk.task_created_time] = 0
-                create_taskNo_dict[tsk.task_created_time] = 0
+
+            create_taskNo_dict = complete_taskNo_dict.copy()
             for tsk in var['Completed']:
                 complete_taskNo_dict[tsk.task_completed_time] += 1
             for tsk in var['Created']:
                 create_taskNo_dict[tsk.task_created_time] += 1
-            print(complete_taskNo_dict)
+            print(complete_taskNo_dict, create_taskNo_dict)
             w = 0.4
-            bar1 = np.arange(len(complete_taskNo_dict.keys()))
-            bar2 = [i+w for i in bar1]
-            plt.bar(bar1, list(create_taskNo_dict.values()),w, label='Created', color = ['brown'])
-            plt.bar(bar2, list(complete_taskNo_dict.values()),w, label='Completed', color = ['green'])
-            plt.xlabel('Date')
-            plt.ylabel('No. of Tasks')
-            plt.title('Date (Activity Time) Vs No. of Tasks')
+            
             dates = list(complete_taskNo_dict.keys())
             dates.sort()
-            plt.xticks(bar1+w/2, dates)
-            handles, labels = plt.gca().get_legend_handles_labels()
-            by_label = dict(zip(labels, handles))
-            plt.legend(by_label.values(), by_label.keys())
-            plt.savefig("static/summaryTask" +".png")
-            return send_file("./static/summaryTask.png")
+            
+
+            return jsonify(dates, list(create_taskNo_dict.values()), list(complete_taskNo_dict.values()))
+
+        elif img_id == 3:
+            var = List.query.filter_by(user_id=user_id)
+            tskNoComp = {}
+            tskNoPend = {}
+            # print(var)
+            for lst in var:
+                tskNoComp[lst.list_name] = 0
+                tskNoPend[lst.list_name] = 0
+                tk = Task.query.filter_by(list_id=lst.list_id)
+                # print(task)            
+                for tsk in tk:
+                    if tsk.task_status == 'Completed':
+                        tskNoComp[lst.list_name] += 1
+                    else:
+                        tskNoPend[lst.list_name] += 1
+            return jsonify(list(tskNoPend.keys()), list(tskNoPend.values()), list(tskNoComp.values()))
+                
+
+
 
 api.add_resource(summary, "/summary_images/<int:img_id>/<int:user_id>")

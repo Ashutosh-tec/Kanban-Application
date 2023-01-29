@@ -90,12 +90,10 @@ export default {
     },
     async addTask() {
       this.formData.task_created_time = this.current_date();
-      // console.log(JSON.stringify(this.formData));
       
       try{
       if (this.formData.task_title != "" && this.formData.task_deadline != "" && this.formData.task_content != "") {
         this.formData.task_created_time = this.current_date();
-        // console.log(this.formData);
         if (this.formData.task_status == "Completed") {
           this.formData.task_completed_time = this.current_date();
         }
